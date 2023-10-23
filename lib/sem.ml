@@ -129,6 +129,13 @@ let sem_cond ({ loc; node } : cond node) sym_tbl =
         raise (Grace_error(Semantic_error, (loc, "Comparison must be of type int or char")))
   | _ -> ()
 
+let type_of_ret loc sym_tbl =
+  let sc = List.hd (List.tl !sym_tbl) in
+  let entry = List.hd sc.entries in
+  match entry.info with
+  | Function _ -> entry_type entry
+  | _ -> raise (Grace_error(Semantic_error, (loc, "Return statement outside function")))
+
 let sem_stmt ({ loc; node } : stmt node) sym_tbl =
   match node with
   | Assign (lv, e) ->
@@ -139,17 +146,12 @@ let sem_stmt ({ loc; node } : stmt node) sym_tbl =
       then raise (Grace_error(Semantic_error, (loc, "Can't assign to a string")))
       else if aux t1 t2 Int || aux t1 t2 Char then ()
       else raise (Grace_error(Semantic_error, (loc, "Assignment type mismatch")))
-  | Return ex -> (
+  | Return ex ->
       let ex_typ =
         match ex with None -> Nothing | Some e -> sem_expr e sym_tbl
       in
-      let sc = List.hd (List.tl !sym_tbl) in
-      let entry = List.hd sc.entries in
-      match entry.info with
-      | Function _ ->
-          if ex_typ = entry_type entry then ()
-          else raise (Grace_error(Semantic_error, (loc, "Return type mismatch")))
-      | _ -> raise (Grace_error(Semantic_error, (loc, "Return statement outside function"))))
+      if ex_typ = type_of_ret loc sym_tbl then ()
+      else raise (Grace_error(Semantic_error, (loc, "Return type mismatch")))
   | _ -> ()
 
 let sem_header ({ loc; node = _, _, data } : header node) _ =
