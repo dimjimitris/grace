@@ -64,8 +64,8 @@ let rec pr_l_value off enable lv =
     | LString str -> "LString(\"" ^ str ^ "\")"
     | ArrayAccess (lv, e) ->
         "ArrayAccess(" ^ endl
-        ^ pr_l_value off true (get_node lv)
-        ^ pr_expr off false (get_node e)
+        ^ pr_l_value (off ^ sep) true (get_node lv)
+        ^ pr_expr (off ^ sep) false (get_node e)
         ^ ")"
   in
   pr_enable str enable

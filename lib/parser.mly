@@ -18,7 +18,8 @@
 %start <Ast.func_def Ast.node> program
 
 %type <Ast.func_def Ast.node> func_def
-%type <Ast.header Ast.node> header
+%type <Ast.header Ast.node> def_header
+%type <Ast.header Ast.node> decl_header
 %type <Ast.param Ast.node list> fpar_def
 %type <Ast.data> data_type
 %type <Ast.data> var_type
@@ -41,16 +42,16 @@
 %%
 
 let program :=
-  | midrule({ Symbol.open_scope tbl }); fd = func_def; midrule({ Symbol.close_scope $loc tbl }); EOF;
-    { fd }
+  | midrule({ wrap_open_scope tbl }); fd = func_def; EOF;
+    { wrap_close_scope $loc tbl; fd }
 
 let func_def :=
-  | h = header; ld = flatten(list(local_def)); b = block;
-    { wrap_func_def $loc(h) (h, ld, b) tbl }
+  | h = def_header; ld = flatten(list(local_def)); b = block; 
+    { wrap_close_scope $loc tbl ;wrap_func_def $loc(h) (h, ld, b) }
 
-let header := 
+let def_header := 
   | FUN; id = ID; LEFT_PAR; fd = flatten(separated_list(SEMICOLON, fpar_def)); RIGHT_PAR; COLON; rt = ret_type;   
-    { wrap_header $loc(id) (id, fd, rt) tbl }
+    { wrap_def_header $loc(id) (id, fd, rt) tbl }
 
 let fpar_def :=
   | ~ = pass; ids = separated_nonempty_list(COMMA, ID); COLON; dt = fpar_type;
@@ -80,10 +81,14 @@ let local_def :=
     { wrap_local_def $loc (`VarDefList vd) }
 
 let func_decl :=   
-  | ~ = header; SEMICOLON;                                      
-    { wrap_func_decl $loc header tbl }
+  | h = decl_header; SEMICOLON;
+    { wrap_func_decl $loc(h) h }
 
-let var_def :=   
+let decl_header :=
+    | FUN; id = ID; LEFT_PAR; fd = flatten(separated_list(SEMICOLON, fpar_def)); RIGHT_PAR; COLON; rt = ret_type;
+    { wrap_decl_header $loc(id) (id, fd, rt) tbl }
+
+let var_def :=
   | VAR; ids = separated_nonempty_list(COMMA, ID); COLON; dt = var_type; SEMICOLON;                   
     { List.map (fun id -> wrap_var $loc (id, dt) tbl) ids }
 

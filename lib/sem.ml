@@ -30,19 +30,21 @@ let comp_var_param va par =
 (*
   1. verify that the variable type is well-defined
   2. verify that the variable is not defined twice in the same scope
-  3. insert the variable into the symbol table
 *)
 let sem_var ({ loc; node = id, t } : var node) sym_tbl =
   verify_var { loc; node = (id, t) };
   match lookup id sym_tbl with
   | Some _ -> raise (Grace_error(Semantic_error, (loc, "Variable already declared")))
-  | None -> insert loc { id; info = Variable (id, t) } sym_tbl
+  | None -> ()
+
+
+let ins_var ({loc; node = id, t } : var node) sym_tbl =
+  insert loc { id; info = Variable (id, t) } sym_tbl
 
 (*
   1. verify that function parameter type is well-defined
   2. verify that array parameters are passed by reference
   3. verify that function parameter is not defined twice in the same function
-  4. insert the function parameter into the symbol table
 *)
 let sem_param ({ loc; node = id, t, pass } as param : param node) sym_tbl =
   verify_param param;
@@ -55,7 +57,10 @@ let sem_param ({ loc; node = id, t, pass } as param : param node) sym_tbl =
   check_type ();
   match lookup id sym_tbl with
   | Some _ -> raise (Grace_error(Semantic_error, (loc, "Parameter already declared")))
-  | None -> insert loc { id; info = Parameter (id, t, pass) } sym_tbl
+  | None -> ()
+
+let ins_param ({ loc; node = id, t, pass } : param node) sym_tbl =
+  insert loc { id; info = Parameter (id, t, pass) } sym_tbl
 
 (*
   1. verify that lvalue exists in the symbol table (unless it's a string)
@@ -138,7 +143,7 @@ let sem_stmt ({ loc; node } : stmt node) sym_tbl =
       let ex_typ =
         match ex with None -> Nothing | Some e -> sem_expr e sym_tbl
       in
-      let sc = List.hd !sym_tbl in
+      let sc = List.hd (List.tl !sym_tbl) in
       let entry = List.hd sc.entries in
       match entry.info with
       | Function _ ->
@@ -153,36 +158,47 @@ let sem_header ({ loc; node = _, _, data } : header node) _ =
   | _ -> ()
 
 let sem_func_decl
-    ({ loc; node = { node = (id, _, _) as head; _ } } : func_decl node) sym_tbl
+    ({ loc; node = (id, _, _) } : header node) sym_tbl
     =
   match lookup id sym_tbl with
   | Some _ -> raise (Grace_error(Semantic_error, (loc, "Function already declared")))
-  | None ->
-      insert loc
-        { id; info = Function { header = head; status = Declared } }
-        sym_tbl
+  | None -> ()
+
+let ins_func_decl ({ loc; node = (id, _, _) as head} : header node) sym_tbl =
+  insert
+    loc
+    { id; info = Function { header = head; status = Declared } }
+    sym_tbl
 
 let compare_heads ((id1, pl1, d1) : header) ((id2, pl2, d2) : header) =
   let skin params = List.map (fun { node = _, t, p; _ } -> (t, p)) params in
   let p1, p2 = (skin pl1, skin pl2) in
   id1 = id2 && p1 = p2 && d1 = d2
 
-let sem_func_def ({ loc; node = h, _, _ } : func_def node) sym_tbl =
-  match h.node with
-  | id, _, _ -> (
+let sem_func_def ({ loc; node = h } : header node) sym_tbl =
+  match h with
+  | id, _, _ -> 
       match lookup id sym_tbl with
-      | None ->
-          insert loc
-            { id; info = Function { header = h.node; status = Defined } }
-            sym_tbl
+      | None -> ()
       | Some { info; _ } -> (
           match info with
           | Function ({ header; _ } as f) ->
               if f.status = Defined then
                 raise (Grace_error(Semantic_error, (loc, "Function already defined")))
-              else if compare_heads h.node header then f.status <- Defined
+              else if compare_heads h header then f.status <- Defined
               else
                 raise
                   (Grace_error(Semantic_error,
                      (loc, "Function declaration and definition mismatch")))
-          | _ -> raise (Grace_error(Semantic_error, (loc, "Name is not a function")))))
+          | _ -> raise (Grace_error(Semantic_error, (loc, "Name is not a function"))))
+
+let ins_func_def ({ loc; node = h } : header node) sym_tbl =
+  match h with
+  | id, _, _ -> 
+      match lookup id sym_tbl with
+      | None -> 
+        insert
+          loc
+          { id; info = Function { header = h; status = Defined } }
+          sym_tbl
+      | Some _ -> ()
