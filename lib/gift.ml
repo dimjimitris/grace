@@ -42,7 +42,7 @@ let wrap_l_value loc lv sym_tbl =
     match !mode with
     | OnlyAst       -> ()
     | AstSymbol     -> ()
-    | AstSymbolSem  -> let _ = Sem.sem_l_value node sym_tbl in ()
+    | AstSymbolSem  -> Sem.sem_l_value node sym_tbl |> ignore
   ) in
   enjoy {sem; node}
 
@@ -52,7 +52,7 @@ let wrap_expr loc expr sym_tbl =
     match !mode with
     | OnlyAst       -> ()
     | AstSymbol     -> ()
-    | AstSymbolSem  -> let _ = Sem.sem_expr node sym_tbl in ()
+    | AstSymbolSem  -> Sem.sem_expr node sym_tbl |> ignore
   ) in
   enjoy {sem; node}
 
@@ -62,7 +62,7 @@ let wrap_func_call loc func_call sym_tbl =
     match !mode with
     | OnlyAst       -> ()
     | AstSymbol     -> ()
-    | AstSymbolSem  -> let _ = Sem.sem_func_call node sym_tbl in ()
+    | AstSymbolSem  -> Sem.sem_func_call node sym_tbl |> ignore
   ) in
   enjoy {sem; node}
 
@@ -72,7 +72,7 @@ let wrap_cond loc comp sym_tbl =
     match !mode with
     | OnlyAst       -> ()
     | AstSymbol     -> ()
-    | AstSymbolSem  -> let _ = Sem.sem_cond node sym_tbl in ()
+    | AstSymbolSem  -> Sem.sem_cond node sym_tbl
   ) in
   enjoy {sem; node}
 
@@ -82,7 +82,7 @@ let wrap_stmt loc stmt sym_tbl =
     match !mode with
     | OnlyAst       -> ()
     | AstSymbol     -> ()
-    | AstSymbolSem  -> let _ = Sem.sem_stmt node sym_tbl in ()
+    | AstSymbolSem  -> Sem.sem_stmt node sym_tbl
   ) in  
   enjoy {sem; node}
 
