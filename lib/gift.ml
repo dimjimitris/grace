@@ -25,17 +25,17 @@ let wrap_close_scope loc sym_tbl =
 
 let enjoy {sem;node} = sem (); node
 
-let wrap_var loc (id, t) sym_tbl =
+let wrap_var_def loc (id, t) sym_tbl =
   let node = { loc; node = (id, t) } in
   let sem () = (
     match !mode with
     | OnlyAst       -> ()
-    | AstSymbol     -> Sem.ins_var node sym_tbl 
-    | AstSymbolSem  -> Sem.sem_var node sym_tbl; Sem.ins_var node sym_tbl 
+    | AstSymbol     -> Sem.ins_var_def node sym_tbl 
+    | AstSymbolSem  -> Sem.sem_var_def node sym_tbl; Sem.ins_var_def node sym_tbl 
   ) in
   enjoy {sem; node}
 
-let wrap_param loc param _ =
+let wrap_param_def loc param _ =
   let node = { loc; node = param } in
   node
 
@@ -106,13 +106,13 @@ let wrap_def_header loc (id, param_n_list, ret_data) (sym_tbl : Symbol.symbol_ta
     | AstSymbol ->
       Sem.ins_func_def node sym_tbl;
       wrap_open_scope sym_tbl;
-      List.iter (fun p -> Sem.ins_param p sym_tbl) param_n_list
+      List.iter (fun p -> Sem.ins_param_def p sym_tbl) param_n_list
     | AstSymbolSem ->
       Sem.sem_header node sym_tbl;
       Sem.sem_func_def node sym_tbl;
       Sem.ins_func_def node sym_tbl;
       wrap_open_scope sym_tbl;
-      List.iter (fun p -> Sem.sem_param p sym_tbl; Sem.ins_param p sym_tbl) param_n_list
+      List.iter (fun p -> Sem.sem_param_def p sym_tbl; Sem.ins_param_def p sym_tbl) param_n_list
   ) in
   enjoy {sem; node}
 
@@ -120,7 +120,7 @@ let wrap_local_def loc local_n =
   match local_n with
   | `FuncDef fd -> [ { loc; node = FuncDef fd } ]
   | `FuncDecl fd -> [ { loc; node = FuncDecl fd } ]
-  | `VarDefList vl -> List.map (fun v -> { loc; node = Var v }) vl
+  | `VarDefList vl -> List.map (fun v -> { loc; node = VarDef v }) vl
 
 let wrap_decl_header loc (id, param_n_list, ret_data) sym_tbl =
   let node = { loc; node = (id, param_n_list, ret_data) } in
@@ -130,18 +130,22 @@ let wrap_decl_header loc (id, param_n_list, ret_data) sym_tbl =
     | AstSymbol ->
       Sem.ins_func_decl node sym_tbl;
       wrap_open_scope sym_tbl;
-      List.iter (fun p -> Sem.ins_param p sym_tbl) param_n_list;
+      List.iter (fun p -> Sem.ins_param_def p sym_tbl) param_n_list;
       wrap_close_scope loc sym_tbl
     | AstSymbolSem ->
       Sem.sem_header node sym_tbl;
       Sem.sem_func_decl node sym_tbl;
       Sem.ins_func_decl node sym_tbl;
       wrap_open_scope sym_tbl;
-      List.iter (fun p -> Sem.sem_param p sym_tbl; Sem.ins_param p sym_tbl) param_n_list;
+      List.iter (fun p -> Sem.sem_param_def p sym_tbl; Sem.ins_param_def p sym_tbl) param_n_list;
       wrap_close_scope loc sym_tbl
   ) in
   enjoy {sem; node}
 
 let wrap_func_decl loc head_n =
   let node = { loc; node = head_n } in
+  node
+
+let wrap_program loc prog_n =
+  let node = { loc; node = prog_n } in
   node

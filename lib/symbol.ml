@@ -3,8 +3,8 @@ open Error
 type func_status = Defined | Declared
 
 type entry_type =
-  | Variable of Ast.var
-  | Parameter of Ast.param
+  | Variable of Ast.var_def
+  | Parameter of Ast.param_def
   | Function of { header : Ast.header; mutable status : func_status }
 
 type entry = {
@@ -34,7 +34,7 @@ let entry_type { info; _ } =
 
 let insert loc (entry : entry) (sym_tbl : symbol_table) =
   match sym_tbl.scopes with
-  | [] -> raise (Grace_error(Symbol_table_error, (loc, "Tried to insert into empty symbol table")))
+  | [] -> raise (Symbol_table_error (loc, "Tried to insert into empty symbol table"))
   | hd :: _ ->
     let internal_entry = { entry; scope = ref hd } in
     Hashtbl.add sym_tbl.table entry.id internal_entry;
@@ -61,7 +61,7 @@ let open_scope sym_tbl = sym_tbl.scopes <- { entries = [] } :: sym_tbl.scopes
 
 let close_scope loc sym_tbl =
   match sym_tbl.scopes with
-  | [] -> raise (Grace_error(Symbol_table_error, (loc, "Tried to close empty symbol table")))
+  | [] -> raise (Symbol_table_error (loc, "Tried to close empty symbol table"))
   | hd :: tl ->
     List.iter (fun { entry; _ } -> Hashtbl.remove sym_tbl.table entry.id) hd.entries;
     sym_tbl.scopes <- tl
