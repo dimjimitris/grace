@@ -1,48 +1,71 @@
-(* token declarations *)
-%token EOF
-
+(* varible identifiers *)
 %token <string> ID
+
+(* literals *)
 %token <int> LIT_INT
 %token <char> LIT_CHAR
 %token <string> LIT_STR
 
-%token AND
+(* reserved type names *)
 %token CHAR
-%token DIV
-%token DO
-%token ELSE
-%token FUN
-%token IF
 %token INT
-%token MOD
-%token NOT
 %token NOTHING
-%token OR
+
+(* statement keywords *)
+%token VAR
+%token FUN
 %token REF
 %token RETURN
+%token IF
 %token THEN
-%token VAR
+%token ELSE
 %token WHILE
+%token DO
 
-%token PLUS         
-%token MINUS        
-%token MULT         
+(* relational operators *)
+%token EQ
+%token NOT_EQ
+%token GREATER
+%token LESSER
+%token GREATER_EQ
+%token LESSER_EQ
 
-%token EQ           
-%token NOT_EQ       
-%token LESS         
-%token MORE         
-%token LESS_EQ      
-%token MORE_EQ      
-%token LEFT_PAR     
-%token RIGHT_PAR    
-%token LEFT_BRACKET 
+(* logical operators *)
+%token AND
+%token OR
+%token NOT
+
+(* arithmetic operators *)
+%token PLUS
+%token MINUS
+%token MULT
+%token DIV
+%token MOD
+
+(* structural symbols *)
+%token LEFT_PAR
+%token RIGHT_PAR
+%token LEFT_BRACKET
 %token RIGHT_BRACKET
-%token LEFT_CURL    
-%token RIGHT_CURL   
-%token COMMA        
-%token SEMICOLON    
-%token COLON        
+%token LEFT_CURL
+%token RIGHT_CURL
+%token COMMA
+%token COLON
+%token SEMICOLON
 %token ASSIGN
+
+(* end of file *)
+%token EOF
+
+%left OR
+%left AND
+%nonassoc UNOT
+// %nonassoc UCOMP
+%left PLUS MINUS
+%left MULT DIV MOD
+%nonassoc USIGN
+
+%nonassoc THEN
+%nonassoc ELSE
 
 %%
