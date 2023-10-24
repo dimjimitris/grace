@@ -1,0 +1,11 @@
+$$
+  Description:
+    incorrect return statement (1)
+  Purpose:
+    check that returning from a 'nothing' function produces an error
+$$
+
+fun main(): nothing
+{
+  return 1;
+}

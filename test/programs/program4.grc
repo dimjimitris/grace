@@ -1,13 +1,25 @@
+$$
+  Description:
+    mutually recursive functions
+  Purpose:
+    check function declarations and recursive function calls work correctly
+$$
+
 fun main(): nothing
-  fun aux(ref chars: char[][1]): nothing
+  fun aux(ref a: int): nothing;
+
+  var k: int;
+  fun rec(): nothing
   {
-    return;
+    k <- 1;
+    return aux(k);
   }
 
-  var a: char[1];
-  var b: char[1][1];
+  fun aux(ref b: int): nothing
+  {
+    if b = 1 then return;
+    rec();
+  }
 {
-  a[0] <- 'y';
-  b[0][0] <- a[0];
-  return aux(b);
+  return rec();
 }

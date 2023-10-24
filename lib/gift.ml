@@ -4,7 +4,7 @@ type 'a gift = { sem : unit -> unit; node : 'a }
 type mode = OnlyAst | AstSymbol | AstSymbolSem
 
 let mode = ref AstSymbolSem
-let tbl : Symbol.symbol_table = { scopes = []; table = Hashtbl.create 50 }
+let tbl : Symbol.symbol_table = { scopes = []; table = Hashtbl.create 64 }
 
 let wrap_open_scope sym_tbl =
   match !mode with OnlyAst -> () | _ -> Symbol.open_scope sym_tbl
@@ -90,6 +90,30 @@ let wrap_func_def loc (head_n, local_n_l, blk_n) =
   let node = { loc; node = (head_n, local_n_l, blk_n) } in
   node
 
+let wrap_decl_header loc (id, param_n_list, ret_data) sym_tbl =
+  let node = { loc; node = (id, param_n_list, ret_data) } in
+  let sem () =
+    match !mode with
+    | OnlyAst -> ()
+    | AstSymbol ->
+        Sem.ins_func_decl node sym_tbl;
+        wrap_open_scope sym_tbl;
+        List.iter (fun p -> Sem.ins_param_def p sym_tbl) param_n_list;
+        wrap_close_scope loc sym_tbl
+    | AstSymbolSem ->
+        Sem.sem_header node sym_tbl;
+        Sem.sem_func_decl node sym_tbl;
+        Sem.ins_func_decl node sym_tbl;
+        wrap_open_scope sym_tbl;
+        List.iter
+          (fun p ->
+            Sem.sem_param_def p sym_tbl;
+            Sem.ins_param_def p sym_tbl)
+          param_n_list;
+        wrap_close_scope loc sym_tbl
+  in
+  enjoy { sem; node }
+
 let wrap_def_header loc (id, param_n_list, ret_data)
     (sym_tbl : Symbol.symbol_table) =
   let node = { loc; node = (id, param_n_list, ret_data) } in
@@ -118,30 +142,6 @@ let wrap_local_def loc local_n =
   | `FuncDef fd -> [ { loc; node = FuncDef fd } ]
   | `FuncDecl fd -> [ { loc; node = FuncDecl fd } ]
   | `VarDefList vl -> List.map (fun v -> { loc; node = VarDef v }) vl
-
-let wrap_decl_header loc (id, param_n_list, ret_data) sym_tbl =
-  let node = { loc; node = (id, param_n_list, ret_data) } in
-  let sem () =
-    match !mode with
-    | OnlyAst -> ()
-    | AstSymbol ->
-        Sem.ins_func_decl node sym_tbl;
-        wrap_open_scope sym_tbl;
-        List.iter (fun p -> Sem.ins_param_def p sym_tbl) param_n_list;
-        wrap_close_scope loc sym_tbl
-    | AstSymbolSem ->
-        Sem.sem_header node sym_tbl;
-        Sem.sem_func_decl node sym_tbl;
-        Sem.ins_func_decl node sym_tbl;
-        wrap_open_scope sym_tbl;
-        List.iter
-          (fun p ->
-            Sem.sem_param_def p sym_tbl;
-            Sem.ins_param_def p sym_tbl)
-          param_n_list;
-        wrap_close_scope loc sym_tbl
-  in
-  enjoy { sem; node }
 
 let wrap_func_decl loc head_n =
   let node = { loc; node = head_n } in

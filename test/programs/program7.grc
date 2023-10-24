@@ -1,0 +1,14 @@
+$$
+  Description:
+    incorrect return statement (2)
+  Purpose:
+    check that returning from a 'nothing' function produces an error
+$$
+
+fun main(): nothing
+  fun aux(): int
+  {
+    return 'a';
+  }
+{
+}
