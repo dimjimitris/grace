@@ -5,10 +5,10 @@ let pr_entry_type off enable et =
   match et with
   | Variable var ->
     off ^ "Variable: " ^ endl ^
-    pr_var (off ^ sep) enable var
+    pr_var_def (off ^ sep) enable var
   | Parameter param ->
     off ^ "Parameter: " ^ endl ^
-    pr_param (off ^ sep) enable param
+    pr_param_def (off ^ sep) enable param
   | Function { header; _} ->
     off ^ "Function: " ^ endl ^
     pr_header (off ^ sep) enable header
