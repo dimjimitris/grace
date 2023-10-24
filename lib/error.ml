@@ -1,31 +1,27 @@
 type loc = Lexing.position * Lexing.position
 
-type err_type =
-  | Symbol_table_error
-  | Semantic_error
-  | Lexer_error
-
-exception Grace_error of err_type * (loc * string)
+exception Lexing_error of loc * string
+exception Semantic_error of loc * string
+exception Symbol_table_error of loc * string
 
 let string_of_loc
-    ( {
+    (
+      {
         Lexing.pos_fname = filename;
         Lexing.pos_lnum = line;
         Lexing.pos_bol;
         Lexing.pos_cnum;
       },
-      _ ) =
+      _
+    ) =
   let col = pos_cnum - pos_bol + 1 in
-  Printf.sprintf "File: %s, line: %d, column: %d" filename line col
+  Printf.sprintf "file: %s, line: %d, column: %d" filename line col
 
-let pr_error = function
-  | Grace_error (t, (l, s)) -> (
-    match t with
-    | Symbol_table_error -> 
-      prerr_endline ("Symbol table error at " ^ string_of_loc l ^ ": " ^ s)
-    | Semantic_error ->
-      prerr_endline ("Semantic error at " ^ string_of_loc l ^ ": " ^ s)
-    | Lexer_error ->
-      prerr_endline ("Lexer error at " ^ string_of_loc l ^ ": " ^ s)
-  )
-  | err -> raise err
+let pr_lexing_error (loc, msg) =
+  prerr_endline ("Lexing error at " ^ string_of_loc loc ^ ": " ^ msg)
+
+let pr_semantic_error (loc, msg) =
+  prerr_endline ("Semantic error at " ^ string_of_loc loc ^ ": " ^ msg)
+
+let pr_symbol_table_error (loc, msg) =
+  prerr_endline ("Symbol table error at " ^ string_of_loc loc ^ ": " ^ msg)
