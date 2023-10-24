@@ -5,15 +5,13 @@ exception Semantic_error of loc * string
 exception Symbol_table_error of loc * string
 
 let string_of_loc
-    (
-      {
+    ( {
         Lexing.pos_fname = filename;
         Lexing.pos_lnum = line;
         Lexing.pos_bol;
         Lexing.pos_cnum;
       },
-      _
-    ) =
+      _ ) =
   let col = pos_cnum - pos_bol + 1 in
   Printf.sprintf "file: %s, line: %d, column: %d" filename line col
 

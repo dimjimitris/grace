@@ -5,7 +5,8 @@ open Error
 (* ensures that defined variables conform to the language's spec *)
 let verify_var_def ({ loc; node = _, dt } : var_def node) =
   let rec aux = function
-    | Array (_, None) -> raise (Semantic_error (loc, "Missing array size is not permitted here"))
+    | Array (_, None) ->
+        raise (Semantic_error (loc, "Missing array size is not permitted here"))
     | Array (t, _) -> aux t
     | _ -> ()
   in
@@ -50,7 +51,7 @@ let sem_var_def ({ loc; node = id, t } : var_def node) sym_tbl =
   | Some _ -> raise (Semantic_error (loc, "Variable already declared"))
   | None -> ()
 
-let ins_var_def ({loc; node = id, t } : var_def node) sym_tbl =
+let ins_var_def ({ loc; node = id, t } : var_def node) sym_tbl =
   insert loc { id; info = Variable (id, t) } sym_tbl
 
 (*
@@ -58,7 +59,8 @@ let ins_var_def ({loc; node = id, t } : var_def node) sym_tbl =
   2. verify that array parameters are passed by reference
   3. verify that function parameter is not defined twice in the same function
 *)
-let sem_param_def ({ loc; node = id, t, pass } as param : param_def node) sym_tbl =
+let sem_param_def ({ loc; node = id, t, pass } as param : param_def node)
+    sym_tbl =
   verify_param_def param;
   let check_type () =
     match (t, pass) with
@@ -96,7 +98,8 @@ let rec sem_l_value ({ loc; node = lv } : l_value node) sym_tbl =
         raise (Semantic_error (loc, "Array access index must be of type int"))
 
 and sem_func_call ({ loc; node = id, el } : func_call node) sym_tbl =
-  let rec check_params (args : expr node list) (param_list : param_def node list) =
+  let rec check_params (args : expr node list)
+      (param_list : param_def node list) =
     match (args, param_list) with
     | [], [] -> true
     | [], _ -> raise (Semantic_error (loc, "Too few arguments"))
@@ -111,12 +114,12 @@ and sem_func_call ({ loc; node = id, el } : func_call node) sym_tbl =
   in
   match lookup_all id sym_tbl with
   | None -> raise (Semantic_error (loc, "Function not defined in any scope"))
-  | Some { info; _ } ->
+  | Some { info; _ } -> (
       match info with
       | Function { header = _, params, data; _ } ->
           if check_params el params then data
           else raise (Semantic_error (loc, "Function call type mismatch"))
-      | _ -> raise (Semantic_error (loc, "Name is not a function"))
+      | _ -> raise (Semantic_error (loc, "Name is not a function")))
 
 and sem_expr ({ loc; node = ex } : expr node) sym_tbl =
   match ex with
@@ -147,8 +150,8 @@ let sem_stmt ({ loc; node } : stmt node) sym_tbl =
       let aux t1 t2 tt = t1 = tt && t2 = tt in
       let t1 = sem_l_value lv sym_tbl in
       let t2 = sem_expr e sym_tbl in
-      if l_value_dep_on_l_string lv.node
-      then raise (Semantic_error (loc, "Can't assign to a string"))
+      if l_value_dep_on_l_string lv.node then
+        raise (Semantic_error (loc, "Can't assign to a string"))
       else if aux t1 t2 Int || aux t1 t2 Char then ()
       else raise (Semantic_error (loc, "Assignment type mismatch"))
   | Return ex ->
@@ -164,22 +167,19 @@ let sem_header ({ loc; node = _, _, data } : header node) _ =
   | Array _ -> raise (Semantic_error (loc, "Return type can't be an array"))
   | _ -> ()
 
-let sem_func_decl
-    ({ loc; node = (id, _, _) } : header node) sym_tbl
-    =
+let sem_func_decl ({ loc; node = id, _, _ } : header node) sym_tbl =
   match lookup id sym_tbl with
   | Some _ -> raise (Semantic_error (loc, "Function already declared"))
   | None -> ()
 
-let ins_func_decl ({ loc; node = (id, _, _) as head} : header node) sym_tbl =
-  insert
-    loc
+let ins_func_decl ({ loc; node = (id, _, _) as head } : header node) sym_tbl =
+  insert loc
     { id; info = Function { header = head; status = Declared } }
     sym_tbl
 
 let sem_func_def ({ loc; node = h } : header node) sym_tbl =
   match h with
-  | id, _, _ -> 
+  | id, _, _ -> (
       match lookup id sym_tbl with
       | None -> ()
       | Some { info; _ } -> (
@@ -192,15 +192,14 @@ let sem_func_def ({ loc; node = h } : header node) sym_tbl =
                 raise
                   (Semantic_error
                      (loc, "Function declaration and definition mismatch"))
-          | _ -> raise (Semantic_error (loc, "Name is not a function")))
+          | _ -> raise (Semantic_error (loc, "Name is not a function"))))
 
 let ins_func_def ({ loc; node = h } : header node) sym_tbl =
   match h with
-  | id, _, _ -> 
+  | id, _, _ -> (
       match lookup id sym_tbl with
-      | None -> 
-        insert
-          loc
-          { id; info = Function { header = h; status = Defined } }
-          sym_tbl
-      | Some _ -> ();
+      | None ->
+          insert loc
+            { id; info = Function { header = h; status = Defined } }
+            sym_tbl
+      | Some _ -> ())

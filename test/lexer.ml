@@ -2,7 +2,9 @@ open Grace_lib
 
 let () =
   let dirname = "programs/" in
-  let filenames = [ "program1.grc"; "program2.grc"; "program3.grc"; "program4.grc" ] in
+  let filenames =
+    [ "program1.grc"; "program2.grc"; "program3.grc"; "program4.grc" ]
+  in
   let test filename =
     let chan = open_in (dirname ^ filename) in
     let lexbuf = Lexing.from_channel chan in

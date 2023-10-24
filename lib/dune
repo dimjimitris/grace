@@ -8,7 +8,6 @@
  (modules tokens)
  (flags --only-tokens))
 
-
 (menhir
  (modules parser tokens)
  (merge_into parser)

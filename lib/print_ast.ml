@@ -50,7 +50,8 @@ let pr_var_def off enable (id, t) =
 
 let pr_param_def off enable (id, t, ref) =
   let str =
-    off ^ "FparDef(" ^ "id: " ^ id ^ ", data_type: " ^ pr_data_type "" false t ^ ")"
+    off ^ "FparDef(" ^ "id: " ^ id ^ ", data_type: " ^ pr_data_type "" false t
+    ^ ")"
     ^ if ref = Reference then endl ^ off ^ "pass by reference" else ""
   in
   pr_enable str enable
@@ -124,9 +125,10 @@ let rec pr_cond off enable cond =
         ^ pr_bin_logic_op (off ^ sep) true log
         ^ pr_cond (off ^ sep) false (get_node c2)
         ^ ")"
-    | UnLogicOp (op, c) ->
-      match op with
-      | Not -> off ^ "Not(" ^ endl ^ pr_cond (off ^ sep) false (get_node c) ^ ")"
+    | UnLogicOp (op, c) -> (
+        match op with
+        | Not ->
+            off ^ "Not(" ^ endl ^ pr_cond (off ^ sep) false (get_node c) ^ ")")
   in
   pr_enable str enable
 
@@ -183,8 +185,7 @@ let pr_header off enable ((id, pl, data) : header) =
     ^ "fpar_defs: " ^ endl
     ^ String.concat ""
         (List.map
-           (fun f ->
-             pr_param_def (off ^ sep ^ sep) true (get_node f))
+           (fun f -> pr_param_def (off ^ sep ^ sep) true (get_node f))
            pl)
     ^ off ^ sep ^ "data_type: " ^ pr_data_type "" false data ^ ")"
   in
@@ -201,10 +202,7 @@ let rec pr_func_def off enable (head, ldl, block) =
     off ^ "FuncDef(" ^ endl
     ^ pr_header (off ^ sep) true (get_node head)
     ^ String.concat ""
-        (List.map
-           (fun l ->
-             pr_local_def (off ^ sep) true (get_node l))
-           ldl)
+        (List.map (fun l -> pr_local_def (off ^ sep) true (get_node l)) ldl)
     ^ pr_block (off ^ sep) false (get_node block)
     ^ ")"
   in
@@ -217,15 +215,15 @@ and pr_local_def off enable ld =
         off ^ "FuncDef: " ^ endl ^ pr_func_def (off ^ sep) false (get_node fd)
     | FuncDecl fd ->
         off ^ "FuncDecl: " ^ endl ^ pr_func_decl (off ^ sep) false (get_node fd)
-    | VarDef vd -> off ^ "Var: " ^ endl ^ pr_var_def (off ^ sep) false (get_node vd)
+    | VarDef vd ->
+        off ^ "Var: " ^ endl ^ pr_var_def (off ^ sep) false (get_node vd)
   in
   pr_enable str enable
 
 let pr_program prog =
   match prog with
-  MainFunc func_def_n ->
-    let str = "MainFunc(" ^ endl
-    ^ pr_func_def sep true (get_node func_def_n)
-    ^ ")"
-  in
-  pr_enable str true
+  | MainFunc func_def_n ->
+      let str =
+        "MainFunc(" ^ endl ^ pr_func_def sep true (get_node func_def_n) ^ ")"
+      in
+      pr_enable str true
