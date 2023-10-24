@@ -1,16 +1,6 @@
 fun main(): nothing
-  fun aux(ref chars: char[][1]): nothing
-  {
-    return;
-  }
-
-  var c: char[1];
-  var d: char[1];
-  var e: char[2][1];
+  var a: int;
+  var b: int[5];
+  var c: char[2][3];
 {
-  c[0] <- 'y';
-  d[0] <- 'g';
-  e[0][0] <- c[0];
-  e[1][0] <- d[0];
-  return aux(e);
 }

@@ -1,0 +1,13 @@
+fun main(): nothing
+  fun aux(ref chars: char[][1]): nothing
+  {
+    return;
+  }
+
+  var a: char[1];
+  var b: char[1][1];
+{
+  a[0] <- 'y';
+  b[0][0] <- a[0];
+  return aux(b);
+}
