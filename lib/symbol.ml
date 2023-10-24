@@ -7,7 +7,24 @@ type entry_type =
   | Parameter of Ast.param
   | Function of { header : Ast.header; mutable status : func_status }
 
-type entry = { id : string; info : entry_type }
+type entry = {
+  id : string;
+  info : entry_type;
+}
+
+type internal_entry = {
+  entry : entry;
+  scope : scope ref;
+}
+
+and scope = {
+  mutable entries : internal_entry list;
+}
+
+type symbol_table = {
+  mutable scopes : scope list;
+  table : (string, internal_entry) Hashtbl.t;
+}
 
 let entry_type { info; _ } =
   match info with
@@ -15,41 +32,36 @@ let entry_type { info; _ } =
   | Parameter (_, t, _) -> t
   | Function { header = _, _, data; _ } -> data
 
-type scope = { mutable entries : entry list }
-type symbol_table = scope list ref
-
-let insert_to_scope (entry : entry) (scope : scope) =
-  scope.entries <- entry :: scope.entries
-
 let insert loc (entry : entry) (sym_tbl : symbol_table) =
-  match !sym_tbl with
-  | hd :: _ -> insert_to_scope entry hd
-  | [] ->
-      raise (Grace_error(Symbol_table_error, (loc, "Tried to insert into empty symbol table")))
+  match sym_tbl.scopes with
+  | [] -> raise (Grace_error(Symbol_table_error, (loc, "Tried to insert into empty symbol table")))
+  | hd :: _ ->
+    let internal_entry = { entry; scope = ref hd } in
+    Hashtbl.add sym_tbl.table entry.id internal_entry;
+    hd.entries <- internal_entry :: hd.entries
 
-let lookup_in_scope (id : string) (scope : scope) =
-  let rec aux id lst =
-    match lst with
-    | [] -> None
-    | ({ id = entry_id; _ } as hd) :: tl ->
-        if id = entry_id then Some hd else aux id tl
-  in
-  aux id scope.entries
+let lookup id sym_tbl =
+  match sym_tbl.scopes with
+  | [] -> None
+  | hd :: _ ->
+    match Hashtbl.find_opt sym_tbl.table id with
+    | Some { entry; scope } ->
+      if !scope == hd then Some entry else None
+    | None -> None
 
-let rec lookup_n n id sc_l =
-  match (n, sc_l) with
-  | _, [] -> None
-  | n, _ when n < 0 -> None
-  | n, hd :: tl -> (
-      match lookup_in_scope id hd with
-      | None -> lookup_n (n - 1) id tl
-      | Some entry -> Some entry)
+let lookup_all id sym_tbl =
+  match sym_tbl.scopes with
+  | [] -> None
+  | _ ->
+    match Hashtbl.find_opt sym_tbl.table id with
+    | Some { entry; _ } -> Some entry
+    | None -> None
 
-let lookup id sym_tbl = lookup_n 0 id !sym_tbl
-let lookup_all id sym_tbl = lookup_n (List.length !sym_tbl - 1) id !sym_tbl
-let open_scope sym_tbl = sym_tbl := { entries = [] } :: !sym_tbl
+let open_scope sym_tbl = sym_tbl.scopes <- { entries = [] } :: sym_tbl.scopes
 
 let close_scope loc sym_tbl =
-  match !sym_tbl with
-  | _ :: tl -> sym_tbl := tl
-  | [] -> raise (Grace_error(Symbol_table_error, (loc, "Tried to close nonexistent scope")))
+  match sym_tbl.scopes with
+  | [] -> raise (Grace_error(Symbol_table_error, (loc, "Tried to close empty symbol table")))
+  | hd :: tl ->
+    List.iter (fun { entry; _ } -> Hashtbl.remove sym_tbl.table entry.id) hd.entries;
+    sym_tbl.scopes <- tl

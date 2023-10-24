@@ -72,7 +72,7 @@ let rec sem_l_value ({ loc; node = lv } : l_value node) sym_tbl =
       match lookup_all id sym_tbl with
       | None ->
           raise (Grace_error(Semantic_error, (loc, "Variable not defined in any scope")))
-      | Some entry -> entry_type entry)
+      | Some in_entry -> entry_type in_entry)
   | LString ls -> Array (Char, Some (String.length ls))
   | ArrayAccess (lv, e) ->
       if sem_expr e sym_tbl = Int then
@@ -130,10 +130,10 @@ let sem_cond ({ loc; node } : cond node) sym_tbl =
   | _ -> ()
 
 let type_of_ret loc sym_tbl =
-  let sc = List.hd (List.tl !sym_tbl) in
-  let entry = List.hd sc.entries in
-  match entry.info with
-  | Function _ -> entry_type entry
+  let sc = List.hd (List.tl sym_tbl.scopes) in
+  let in_entry = List.hd sc.entries in
+  match in_entry.entry.info with
+  | Function _ -> entry_type in_entry.entry
   | _ -> raise (Grace_error(Semantic_error, (loc, "Return statement outside function")))
 
 let sem_stmt ({ loc; node } : stmt node) sym_tbl =
@@ -203,4 +203,4 @@ let ins_func_def ({ loc; node = h } : header node) sym_tbl =
           loc
           { id; info = Function { header = h; status = Defined } }
           sym_tbl
-      | Some _ -> ()
+      | Some _ -> ();

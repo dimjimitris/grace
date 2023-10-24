@@ -8,7 +8,10 @@ type 'a gift = {
 type mode = | OnlyAst | AstSymbol | AstSymbolSem
 
 let mode = ref AstSymbolSem
-let tbl : Symbol.symbol_table = ref []
+let tbl : Symbol.symbol_table = {
+  scopes = [];
+  table = Hashtbl.create 50;
+}
 
 let wrap_open_scope sym_tbl =
   match !mode with
@@ -94,7 +97,7 @@ let wrap_func_def loc (head_n, local_n_l, blk_n) =
   let node = { loc; node = (head_n, local_n_l, blk_n) } in
   node
 
-let wrap_def_header loc (id, param_n_list, ret_data) sym_tbl =
+let wrap_def_header loc (id, param_n_list, ret_data) (sym_tbl : Symbol.symbol_table) =
   let node = { loc; node = (id, param_n_list, ret_data) } in
   let sem () = (
     match !mode with
