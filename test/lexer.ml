@@ -8,7 +8,7 @@ let () =
   let test filename =
     let chan = open_in (dirname ^ filename) in
     let lexbuf = Lexing.from_channel chan in
-    let () = Lexing.set_filename lexbuf filename in
+    Lexing.set_filename lexbuf filename;
     let rec tokenize_and_print () =
       try
         (* call the lexer's 'token' rule (tokenize input) *)
@@ -17,7 +17,7 @@ let () =
         match token with
         | Tokens.EOF -> ()
         | _ ->
-            print_endline (Lexer_utils.string_of_token token);
+            Lexer_utils.string_of_token token |> print_endline;
             tokenize_and_print ()
       with Error.Lexing_error (loc, msg) -> Error.pr_lexing_error (loc, msg)
     in
