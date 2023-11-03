@@ -1,0 +1,20 @@
+$$
+  Description:
+    inner function definition uses predecessor parameter
+  Purpose:
+    check 'access link' related stuff (maybe???)
+$$
+
+fun main(): nothing
+  var f: int;
+  fun aux(a: int): nothing
+    fun aux_inner(ref b: int): nothing
+    {
+        b <- b + a; $ use parameter a
+    }
+  {
+    aux_inner(f); $ use variable f
+  }
+{
+  aux(1); $ wah
+}
