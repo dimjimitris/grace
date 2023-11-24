@@ -1,0 +1,16 @@
+$$
+  Description:
+    Using character from LString
+  Purpose:
+    Test if compiler properly parses this syntax
+$$
+
+fun main () : nothing
+    var s: char[10];
+
+    fun complicate_things(): int { return 1; }
+
+{
+    s[0] <- "hello"[0];                     $ this syntax should work
+    s[1] <- "hello"[complicate_things()];   $ this syntax should also work
+}

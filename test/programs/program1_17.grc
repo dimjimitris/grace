@@ -1,0 +1,16 @@
+$$
+  Description:
+    (Erroneous) assignment to string literal
+  Purpose:
+    Test if compiler identifies this error, this error should be identified in runtime only...
+$$
+
+fun main () : nothing
+
+    fun parent (ref s: char[]) : nothing
+    {
+        s[0] <- 'a';
+    }
+{
+    parent("hello world");
+}

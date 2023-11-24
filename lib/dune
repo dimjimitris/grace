@@ -1,2 +1,21 @@
 (library
- (name grace))
+ (name grace_lib)
+ ;; (modules (:standard \ codegen))
+ (libraries llvm llvm.all_backends llvm.analysis llvm.target))
+
+(ocamllex
+ (modules lexer))
+
+(menhir
+ (modules tokens)
+ (flags --only-tokens))
+
+(menhir
+ (modules parser tokens)
+ (merge_into parser)
+ (flags --external-tokens Tokens))
+
+(env
+ (dev
+  (flags
+   (:standard -warn-error -A))))

@@ -1,0 +1,9 @@
+fun main(): nothing
+    var a: int[2];
+    fun g(ref b: int[]) : nothing
+    {
+        a[0] <- 1;
+    }
+{
+    g(a);
+}

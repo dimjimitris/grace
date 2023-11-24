@@ -1,0 +1,10 @@
+$$
+  Description:
+    wrong main function parameters
+  Purpose:
+    the first defined function must take zero parameters
+$$
+
+fun main(a: int): nothing
+{
+}

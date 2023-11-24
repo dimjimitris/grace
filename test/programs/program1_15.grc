@@ -1,0 +1,24 @@
+$$
+  Description:
+    (Erroneous) Lingering function declaration
+  Purpose:
+    Test if compiler identifies this error
+$$
+
+fun main () : nothing
+
+    fun parent () : int
+    
+        fun child1 () : int;
+
+        fun child2 () : int
+        {
+            return 3;
+        }
+
+    {
+        return child1();
+    }
+
+{
+}

@@ -1,0 +1,18 @@
+$$
+  Description:
+    passing an array access that is an array as a parameter
+  Purpose:
+    The test should succeed, because types match semantically
+$$
+
+fun main(): nothing
+
+    var str: char[3][9];
+
+    fun passer(ref s: char[]) : nothing
+    {
+    }
+
+{
+    passer(str[2]);
+}

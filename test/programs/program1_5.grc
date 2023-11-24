@@ -1,0 +1,12 @@
+$$
+  Description:
+    incorrect variable assignment
+  Purpose:
+    check that assigning the wrong type produces an error
+$$
+
+fun main(): nothing
+  var a: int;
+{
+  a <- 'a';
+}

@@ -1,0 +1,10 @@
+$$
+  Description:
+    the simplest possible (nonempty) program
+  Purpose:
+    if the compiler doesn't work with this as input, then it won't work with any input
+$$
+
+fun main(): nothing
+{
+}

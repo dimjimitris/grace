@@ -1,0 +1,16 @@
+$$
+  Description:
+    inner function definition uses parent variable
+  Purpose:
+    check 'access link' related stuff...
+$$
+
+fun main(): nothing
+  var f: int;
+  fun aux(): nothing
+  {
+    f <- f + 1;
+  }
+{
+  aux();
+}

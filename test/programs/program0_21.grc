@@ -1,0 +1,18 @@
+$$
+  Description:
+    multiple returns
+  Purpose:
+    check if they are properly discarded
+$$
+
+fun main(): nothing
+    var a: int;
+{
+    a <- 42;
+    if (a > 17)
+    then {
+        a <- 17;
+        return;
+    }
+    return;
+}

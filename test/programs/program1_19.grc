@@ -1,0 +1,18 @@
+$$
+  Description:
+    (Erroneous) syntax
+  Purpose:
+    Test if compiler identifies this error
+$$
+
+fun main () : nothing
+
+    var s[10]: char[10]; $ syntax error
+
+    fun parent () : nothing
+    {
+        s[0] <- 'a';
+    }
+{
+    parent();
+}

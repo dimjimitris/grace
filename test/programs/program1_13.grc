@@ -1,0 +1,11 @@
+$$
+  Description:
+    wrong main function return type
+  Purpose:
+    the first defined function must return 'nothing'
+$$
+
+fun main(): int
+{
+  return 1;
+}

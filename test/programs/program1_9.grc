@@ -1,0 +1,15 @@
+$$
+  Description:
+    incorrect number of function parameters
+  Purpose:
+    check that calling function incorrectly produces error
+$$
+
+fun main(): nothing
+  var f: int;
+  fun aux(a, b: int): nothing
+  {
+  }
+{
+  aux(f);
+}

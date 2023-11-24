@@ -1,0 +1,11 @@
+$$
+  Description:
+    (Erroneous) assignment to string literal
+  Purpose:
+    Test if compiler identifies this error
+$$
+
+fun main () : nothing
+{
+    "hello world"[1] <- 'a';
+}
