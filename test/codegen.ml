@@ -51,6 +51,14 @@ let () =
         Grace_lib.Error.pr_symbol_table_error (loc, msg);
         Grace_lib.Print_symbol.pr_symbol_table "" true Grace_lib.Wrapper.tbl
         |> print_endline
+    | Grace_lib.Error.Codegen_error (loc, msg) ->
+        Grace_lib.Error.pr_codegen_error (loc, msg);
+        Grace_lib.Print_symbol.pr_symbol_table "" true Grace_lib.Wrapper.tbl
+        |> print_endline
+    | Grace_lib.Error.Internal_compiler_error (msg) ->
+        Grace_lib.Error.pr_internal_compiler_error msg;
+        Grace_lib.Print_symbol.pr_symbol_table "" true Grace_lib.Wrapper.tbl
+        |> print_endline
   in
 
   List.iter test !filenames

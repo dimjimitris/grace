@@ -182,7 +182,6 @@ let sem_simple_l_value (slv : simple_l_value) (sym_tbl : symbol_table) =
         l_val_id.passed_by <- Value;
         l_val_id.frame_offset <- vd.frame_offset;
         l_val_id.parent_path <- vd.parent_path;
-        l_val_id.depth <- vd.depth;
         l_val_id.type_t
         | Parameter pdr ->
           let pd = !pdr in
@@ -190,7 +189,6 @@ let sem_simple_l_value (slv : simple_l_value) (sym_tbl : symbol_table) =
           l_val_id.passed_by <- pd.pass_by;
           l_val_id.frame_offset <- pd.frame_offset;
           l_val_id.parent_path <- pd.parent_path;
-          l_val_id.depth <- pd.depth;
           l_val_id.type_t
           | Function _ ->
             raise

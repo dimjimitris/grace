@@ -1,7 +1,7 @@
 open Ast
 
 let tbl : Symbol.symbol_table =
-  { scopes = []; table = Hashtbl.create 100; parent_path = []; depth = 0 }
+  { scopes = []; table = Hashtbl.create 100; parent_path = [] }
 
 let enjoy sem node =
   ignore (sem ()); node
@@ -20,7 +20,6 @@ let wrap_var_def loc id vt sym_tbl =
       type_t = vt;
       frame_offset = Symbol.get_and_increment_offset sym_tbl;
       parent_path = sym_tbl.parent_path;
-      depth = sym_tbl.depth;
       loc;
     }
   in
@@ -40,8 +39,6 @@ let wrap_param_def loc id pt pb (_sym_tbl : Symbol.symbol_table) =
       (* will be set by wrap_decl/def_header *)
       parent_path = [];
       (* will be set by wrap_decl/def_header *)
-      depth = 0;
-      (* will be set by wrap_decl/def_header *)
       loc;
     }
   in
@@ -59,8 +56,6 @@ let wrap_l_value_id loc id exprs sym_tbl =
       frame_offset = -1;
       (* will be changed by sem_l_value *)
       parent_path = [];
-      (* will be changed by sem_l_value *)
-      depth = 0;
       (* will be changed by sem_l_value *)
       loc;
     }
@@ -95,10 +90,7 @@ let wrap_func_call loc id exprs (sym_tbl : Symbol.symbol_table) =
       (* will be set in sem_func_call *)
       callee_path = [];
       (* will be set in sem_func_call *)
-      callee_depth = 0;
-      (* will be set in sem_func_call *)
       caller_path = sym_tbl.parent_path;
-      caller_depth = sym_tbl.depth;
       loc;
     }
   in
@@ -211,7 +203,6 @@ let wrap_decl_header loc id pd_l ret_type (sym_tbl : Symbol.symbol_table) =
       body = None;
       loc;
       parent_path = sym_tbl.parent_path;
-      depth = sym_tbl.depth;
       status = Declared;
     }
   in
@@ -242,7 +233,6 @@ let wrap_def_header loc id pd_l ret_type (sym_tbl : Symbol.symbol_table) =
       (* will be added later *)
       loc;
       parent_path = sym_tbl.parent_path;
-      depth = sym_tbl.depth;
       status = Defined;
     }
   in

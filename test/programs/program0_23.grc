@@ -1,0 +1,24 @@
+$$
+    Description:
+        a function's block must always return someting
+    Purpose:
+        check that llvm produces correct code
+$$
+
+fun main(): nothing
+    fun f(): int {return 5;}
+    fun g(): int
+        var a: int;
+    {
+        a <- f();
+        if (a < 10) then {
+            return a;
+        } else {
+            a <- a - 2;
+            return a;
+        }
+        return 0; $ If we edit this out, then the program is wrong (Codegen error)
+    }
+{
+    g();
+}

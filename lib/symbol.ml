@@ -37,7 +37,7 @@ type symbol_table = {
   mutable scopes : scope list;
   table : (string, entry) Hashtbl.t;
   mutable parent_path : string list;
-  mutable depth : int; (* length of parent path *)
+  (*mutable depth : int; *)
 }
 
 let get_and_increment_offset (sym_tbl : symbol_table) =
@@ -74,8 +74,7 @@ let open_scope (func_id : string) (sym_tbl : symbol_table) =
   sym_tbl.scopes <- scope :: sym_tbl.scopes;
   sym_tbl.parent_path <-
     (if func_id = String.empty then sym_tbl.parent_path
-      else func_id :: sym_tbl.parent_path);
-  sym_tbl.depth <- sym_tbl.depth + 1
+      else func_id :: sym_tbl.parent_path)
 
 let close_scope loc (sym_tbl : symbol_table) =
   match sym_tbl.scopes with
@@ -84,5 +83,5 @@ let close_scope loc (sym_tbl : symbol_table) =
       List.iter (fun entry -> Hashtbl.remove sym_tbl.table entry.id) hd.entries;
       sym_tbl.scopes <- tl;
       match sym_tbl.parent_path with
-      | _ :: t -> sym_tbl.parent_path <- t; sym_tbl.depth <- sym_tbl.depth - 1
+      | _ :: t -> sym_tbl.parent_path <- t
       | _ -> ())

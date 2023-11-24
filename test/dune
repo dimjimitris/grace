@@ -1,5 +1,5 @@
 (tests
- (names lexer parser)
+ (names lexer parser codegen croque)
 ;; (deps
 ;;  (source_tree ./programs))
  (libraries grace_lib llvm.analysis llvm))
