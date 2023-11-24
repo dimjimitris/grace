@@ -1,8 +1,8 @@
 (lang dune 3.11)
 
-(using menhir 2.1)
+(name grace)
 
-(name gracec)
+(generate_opam_files true)
 
 (source
  (github username/reponame))
@@ -13,10 +13,10 @@
 
 (license LICENSE)
 
-(documentation https://duckduckgo.com)
+(documentation https://url/to/documentation)
 
 (package
- (name gracec)
+ (name grace)
  (synopsis "A short synopsis")
  (description "A longer description")
  (depends ocaml dune)
